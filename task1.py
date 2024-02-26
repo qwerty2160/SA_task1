@@ -76,13 +76,13 @@ def kemeni(x, y):
 def createRmore():
 	global table0, table1, exp_numbers, n, m, cannonicalMatrices, rmoreMatrix
 	for i in range(n+1):
-		rmoreMatrix.append(list(" "*(n+2)))
+		rmoreMatrix.append(list(" "*(n+3)))
 	for i in range(n):
 		for j in range(n):
 			m1 = cannonicalMatrices[i]
 			m2 = cannonicalMatrices[j]
 			rmoreMatrix[i][j]=kemeni(m1, m2)
-	alpha_sigma = 0 #сумма сумм
+	rmoreMatrix[n][n] = 0 #сумма сумм
 	for i in range(n):
 		s_col = 0
 		s_row = 0
@@ -94,32 +94,32 @@ def createRmore():
 		rmoreMatrix[i][j+1] = s_row
 		rmoreMatrix[i][j+2] = s_row_square
 		rmoreMatrix[j+1][i] = s_col
-		alpha_sigma+=s_row
-	rmoreMatrix[j+1][i+1] = alpha_sigma
-	
+		rmoreMatrix[n][n]+=s_row
+	rmoreMatrix[n][n+1] = rmoreMatrix[0][n-1+2] #минимум среди квадратов расстояний Кемени
+	for i in range(1, n):
+		rmoreMatrix[n][n+1] = min(rmoreMatrix[n][n+1], rmoreMatrix[i][n-1+2])
+	for i in range(0, n):
+		if int(rmoreMatrix[i][n-1+2]) == int(rmoreMatrix[n][n+1]):
+			rmoreMatrix[i][n-1+3] = "E"+str(exp_numbers[i])
 	print("\nРасстояния между ответами-ранжированиями экспертов E{}-E{}.\n".format(exp_numbers[0], exp_numbers[-1]))
 	print("Dij", end='\t')
 	for i in range(n):
 			print("E{}".format(exp_numbers[i]), end='\t')
-	print("ΣрК\tΣкрК\t")
+	print("ΣрК\tΣкрК\tНСР\t")
 	for i in range(n+1):
 		if i<n:
 			print("E{}".format(exp_numbers[i]), end='\t')
 		else:
 			print("Σ", end='\t')
-		for j in range(n+2):
+		for j in range(n+3):
 			print(rmoreMatrix[i][j], end='\t')
 		print()
-	min_kvkem = rmoreMatrix[0][n-1+2]
-	min_kvkem_exp_ind = 0
-	for i in range(1, n):
-		if min_kvkem>rmoreMatrix[i][n-1+2]:
-			min_kvkem_exp_ind=i
-		min(min_kvkem, rmoreMatrix[i][n-1+2])
-	print("\nНаиболее согласованное ранжирование - эксперт E{}.".format(exp_numbers[min_kvkem_exp_ind]))
 	
 if __name__ == "__main__":
-	getDataFromUser()
-	createTable1()
-	createCannonicalMatrices()
-	createRmore()
+	try:
+		getDataFromUser()
+		createTable1()
+		createCannonicalMatrices()
+		createRmore()
+	except Exception:
+		print("Произошла ошибка при вводе данных, или иная ошибка!!!")
